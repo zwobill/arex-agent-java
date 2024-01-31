@@ -3,9 +3,11 @@ package io.arex.inst.runtime.model;
 import io.arex.agent.bootstrap.util.CollectionUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import io.arex.agent.bootstrap.util.StringUtil;
+import io.arex.inst.runtime.config.AgentConfig;
 
 /**
  * DynamicClassEntity
@@ -13,13 +15,14 @@ import io.arex.agent.bootstrap.util.StringUtil;
 public class DynamicClassEntity {
     private static final String ACTUAL_TYPE_SIGNATURE = "T:";
     public static final String ABSTRACT_CLASS_PREFIX = "ac:";
-    private final String clazzName;
-    private final String operation;
-    private final String parameterTypes;
+    private String clazzName;
+    private String operation;
+    private String parameterTypes;
     private String additionalSignature;
     private String actualType;
     private List<String> parameters;
     private DynamicClassStatusEnum status;
+
     public DynamicClassEntity(String clazzName, String operation, String parameterTypes, String additionalSignature) {
         this.clazzName = clazzName;
         this.operation = operation;
@@ -28,14 +31,24 @@ public class DynamicClassEntity {
         if (StringUtil.isNotEmpty(parameterTypes) && !"null".equals(parameterTypes)) {
             String[] types = StringUtil.split(parameterTypes, '@');
             this.parameters = new ArrayList<>(types.length);
-            for (int i = 0; i < types.length; i++) {
-                if (types[i] != null && types[i].length() > 0) {
-                    this.parameters.add(types[i]);
+            for (String type : types) {
+                if (type != null && !type.isEmpty()) {
+                    this.parameters.add(type);
                 }
             }
         }
         // fix dynamic response type is generic type
         transformAdditionalSignature(additionalSignature);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static DynamicClassEntity fromMap(Map<String, Object> map) {
+        return new DynamicClassEntity(
+            (String) map.get("clazzName"),
+            (String) map.get("operation"),
+            (String) map.get("parameterTypes"),
+            (String) map.get("additionalSignature")
+        );
     }
 
     /**
@@ -143,4 +156,5 @@ public class DynamicClassEntity {
     public int hashCode() {
         return Objects.hash(clazzName, operation, parameterTypes, additionalSignature);
     }
+
 }

@@ -1,0 +1,18 @@
+arex:
+  agent:
+    enabled: true
+    debug: true
+    recording:
+      rate: 100
+
+  app:
+    name: test-app
+    dynamicAbstractClasses: com.example.myapp.Foo,com.example.myapp.Bar
+    excludedApi:
+      - excludedApi1
+      - excludedApi2
+    includedApi:
+      - includedApi1
+      - includedApi2
+  server:
+    host: localhost

@@ -3,6 +3,8 @@ package io.arex.inst.runtime.service;
 import io.arex.agent.bootstrap.model.MockStrategyEnum;
 import io.arex.agent.bootstrap.model.Mocker;
 
+import java.io.IOException;
+
 /**
  * Data collector interface. It defines the basic operations for AREX data storage which is used to 
  * store and retrieve AREX data entries.

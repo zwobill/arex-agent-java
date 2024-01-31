@@ -26,7 +26,9 @@ public class ArexJavaAgent {
     private static void init(Instrumentation inst, String agentArgs) {
         try {
             printAgentInfo();
+            long start = System.currentTimeMillis();
             installBootstrapJar(inst);
+            System.out.println("installBootstrapJar cost: " + (System.currentTimeMillis() - start) + "ms");
             AgentInitializer.initialize(inst, getJarFile(ArexJavaAgent.class), agentArgs);
         } catch (Exception ex) {
             System.out.printf("%s [AREX] Agent initialize error, stacktrace: %s%n", getCurrentTime(), ex);

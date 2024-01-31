@@ -140,26 +140,32 @@ public class ServletAdviceHelper {
 
             RequestHandlerManager.postHandle(httpServletRequest, httpServletResponse, MockCategoryType.SERVLET.getName());
 
+            LogManager.warn("are we here? ", "1");
+
             if (httpServletRequest == null || httpServletResponse == null) {
                 return;
             }
+            LogManager.warn("are we here? ", "1");
 
             adapter.removeAttribute(httpServletRequest, PROCESSED_FLAG);
 
             if (!adapter.wrapped(httpServletRequest, httpServletResponse)) {
                 return;
             }
+            LogManager.warn("are we here? ", "2");
 
             // Do not record if arex trace was removed
             if (!ContextManager.needRecordOrReplay()) {
                 adapter.copyBodyToResponse(httpServletResponse);
                 return;
             }
+            LogManager.warn("are we here? ", "3");
 
             // Async listener will handle async request
             if (Boolean.TRUE.equals(adapter.getAttribute(httpServletRequest, SERVLET_ASYNC_FLAG))) {
                 return;
             }
+            LogManager.warn("are we here? ", "4");
 
             // Add async listener for async request
             if (adapter.isAsyncStarted(httpServletRequest)) {
@@ -167,11 +173,16 @@ public class ServletAdviceHelper {
                 adapter.addListener(adapter, httpServletRequest, httpServletResponse);
                 return;
             }
+            LogManager.warn("are we here? ", "5");
 
             // sync request
             new ServletExtractor<>(adapter, httpServletRequest, httpServletResponse).execute();
+            LogManager.warn("are we here? ", "6");
+
         } catch (Throwable e) {
             LogManager.warn("servlet.onExit", e);
+            LogManager.warn("are we here? ", "7");
+
         }
     }
 

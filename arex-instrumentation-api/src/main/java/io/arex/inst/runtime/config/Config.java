@@ -201,9 +201,9 @@ public class Config {
         if (!getBoolean(ConfigConstants.DURING_WORK, false)) {
             return true;
         }
-        if (!getBoolean(ConfigConstants.IP_VALIDATE, false)) {
-            return true;
-        }
+//        if (!getBoolean(ConfigConstants.IP_VALIDATE, false)) {
+//            return true;
+//        }
         if (getBoolean(ConfigConstants.DISABLE_RECORD, false)) {
             return true;
         }

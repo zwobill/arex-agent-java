@@ -46,7 +46,7 @@
         <module>arex-agent-core</module>
         <module>arex-instrumentation</module>
         <module>arex-instrumentation-foundation</module>
-        <module>arex-attacher</module>
+<!--        <module>arex-attacher</module>-->
         <module>arex-integration-tests</module>
         <module>arex-instrumentation-api</module>
         <module>arex-third-party</module>
@@ -59,7 +59,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- -dependencies versions -->
-        <java.version>1.8</java.version>
+        <jdk.version>21</jdk.version>
+        <java.release>8</java.release>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <slf4j.version>1.7.25</slf4j.version>
         <byte-buddy.version>1.14.9</byte-buddy.version>
@@ -246,11 +247,33 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <source>${jdk.version}</source>
+                            <target>${jdk.version}</target>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <release>${java.release}</release>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <source>${jdk.version}</source>
+                            <target>${jdk.version}</target>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -10,13 +10,11 @@ public class AgentInitializer {
 
     private static ClassLoader classLoader;
 
-    public static void initialize(Instrumentation inst, File agentFile, String agentArgs)
-            throws Exception {
+    public static void initialize(Instrumentation inst, File agentFile, String agentArgs) throws Exception {
         if (classLoader != null) {
             return;
         }
 
-        System.setProperty("arex.agent.jar.file.path", agentFile.getAbsolutePath());
         System.setProperty(ConfigConstants.SHADED_LOGGER_SHOW_DATE_TIME, "true");
         System.setProperty(ConfigConstants.SHADED_LOGGER_DATE_TIME_FORMAT, "yyyy-MM-dd HH:mm:ss:SSS");
         File[] extensionFiles = getExtensionJarFiles(agentFile);

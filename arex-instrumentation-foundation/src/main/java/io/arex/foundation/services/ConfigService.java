@@ -1,11 +1,12 @@
 package io.arex.foundation.services;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators.StringIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.auto.service.AutoService;
+import io.arex.inst.runtime.config.AgentConfigLoader;
 import io.arex.agent.bootstrap.constants.ConfigConstants;
 import io.arex.agent.bootstrap.model.ArexMocker;
 import io.arex.agent.bootstrap.util.MapUtils;
@@ -15,7 +16,7 @@ import io.arex.foundation.util.httpclient.AsyncHttpClientUtil;
 import io.arex.foundation.util.NetUtils;
 import io.arex.agent.bootstrap.util.StringUtil;
 
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +34,8 @@ import org.yaml.snakeyaml.Yaml;
  *
  * @date 2022/03/16
  */
-public class ConfigService {
+@AutoService(AgentConfigLoader.class)
+public class ConfigService implements AgentConfigLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigService.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -47,7 +49,7 @@ public class ConfigService {
     private final AtomicBoolean reloadConfig = new AtomicBoolean(false);
     private static final long DELAY_MINUTES = 15L;
 
-    private ConfigService() {
+    public ConfigService() {
         MAPPER.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
         MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -68,9 +70,9 @@ public class ConfigService {
             return -1;
         }
         // Load agent config according to last modified time
-        loadAgentConfigYaml();
         return DELAY_MINUTES;
     }
+
 
     public class Arex {
         private Service service;
@@ -96,22 +98,25 @@ public class ConfigService {
         }
     }
 
+    @Override
+    public Map<String, Object> load() {
+        return loadAgentConfigYaml();
+    }
+
     /**
      * Load configurations from YAML file ~/.arex/agent-config.yml
      */
-    public void loadAgentConfigYaml() {
+    public Map<String, Object> loadAgentConfigYaml() {
+        String home = System.getProperty("user.home");
+        String path = Paths.get(home, ".arex/agent-config.yml").toString();
         try {
             Yaml yaml = new Yaml();
-            String home = System.getProperty("user.home");
-            String path = Paths.get(home, ".arex/agent-config.yml").toString();
             LOGGER.warn("loadAgentConfig from YAML file: {}", path);
-            Map<String, Object> obj = yaml.load(new FileInputStream(path));
-            Map<String, Object> arex = (Map<String, Object>)obj.get("arex");
-            Map<String, Object> service = (Map<String, Object>)arex.get("service");
-            String name = (String)service.get("name");
-            LOGGER.warn("loaded configuration from YAML file: {}", name);
+            Map<String, Object> configMap = yaml.load(Files.newInputStream(Paths.get(path)));
+            LOGGER.warn("loaded configuration from YAML file: {}", path);
+            return configMap;
         } catch (Exception e) {
-            LOGGER.warn("loadAgentConfigYaml error: {}", e.getMessage());
+            throw new RuntimeException(String.format("failed to load configurations from YAML file %s", path), e);
         }
     }
 

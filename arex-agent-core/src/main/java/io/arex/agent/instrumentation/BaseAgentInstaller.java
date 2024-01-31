@@ -11,6 +11,7 @@ import io.arex.foundation.services.ConfigService;
 import io.arex.foundation.services.DataCollectorService;
 import io.arex.foundation.services.TimerService;
 import io.arex.foundation.util.NetUtils;
+import io.arex.inst.runtime.config.AgentConfig;
 import io.arex.inst.runtime.context.RecordLimiter;
 import io.arex.inst.runtime.serializer.Serializer;
 import io.arex.inst.runtime.service.DataCollector;
@@ -43,6 +44,9 @@ public abstract class BaseAgentInstaller implements AgentInstaller {
 
     @Override
     public void install() {
+        AgentConfig config = AgentConfig.getInstance();
+        config.load(null);
+            System.out.printf("arex.agent.appname: %s\n", config.getAppName());
         ClassLoader savedContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
@@ -77,10 +81,11 @@ public abstract class BaseAgentInstaller implements AgentInstaller {
     }
 
     boolean allowStartAgent() {
-        if (ConfigManager.INSTANCE.isLocalStorage()) {
-            return true;
-        }
-        return ConfigManager.INSTANCE.checkTargetAddress();
+//        if (ConfigManager.INSTANCE.isLocalStorage()) {
+//            return true;
+//        }
+//        return ConfigManager.INSTANCE.checkTargetAddress();
+        return true;
     }
 
     String getInvalidReason() {

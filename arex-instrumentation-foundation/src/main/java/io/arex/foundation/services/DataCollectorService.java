@@ -18,6 +18,11 @@ import io.arex.inst.runtime.serializer.Serializer;
 import io.arex.inst.runtime.util.CaseManager;
 import io.arex.inst.runtime.service.DataCollector;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -122,13 +127,33 @@ public class DataCollectorService implements DataCollector {
     }
 
     private static final String MOCK_STRATEGY = "X-AREX-Mock-Strategy-Code";
+    private static final String DEFAULT_FILE_NAME = "recording.txt";
+    private static final String DEFAULT_FILE_PATH = System.getProperty("user.home") + "/.arex/recording";
+    private static final String DEFAULT_FILE = DEFAULT_FILE_PATH + "/" + DEFAULT_FILE_NAME;
+    private BufferedOutputStream outputStream = null;
 
     void saveData(DataEntity entity) {
         if (entity == null || CaseManager.isInvalidCase(entity.getRecordId())) {
             return;
         }
-        AsyncHttpClientUtil.postAsyncWithZstdJson(saveApiUrl, entity.getPostData(), null)
-            .whenComplete(saveMockDataConsumer(entity));
+        try {
+            // Open the output file for writing, create the folder and file if not exist
+            if (Files.notExists(Paths.get(DEFAULT_FILE_PATH))) {
+                Files.createDirectories(Paths.get(DEFAULT_FILE_PATH));
+            }
+            if (outputStream == null) {
+                outputStream = new BufferedOutputStream(
+                        Files.newOutputStream(Paths.get(DEFAULT_FILE))
+                );
+            }
+            // Write the test case data into the output file
+            outputStream.write(entity.getPostData().getBytes());
+            outputStream.write("\n".getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        AsyncHttpClientUtil.postAsyncWithZstdJson(saveApiUrl, entity.getPostData(), null)
+//            .whenComplete(saveMockDataConsumer(entity));
     }
 
     /**
